@@ -167,9 +167,9 @@
 <div class="wrap">
 
   <div class="config-bar" id="configBar">
-    <label>資料來源（Google Sheet API 網址）</label>
+    <label>資料來源（Google Sheet API 網址，已預設好，如需更換其他表單才需要改）</label>
     <div class="config-row">
-      <input type="text" id="apiUrlInput" placeholder="https://script.google.com/macros/s/AKfycbwf0st3p_uI34uAwTlZ23aMZPGVr6K_iewf7GjcK0OO6La_QcZjQogTd23-oSG0GxT1/exec">
+      <input type="text" id="apiUrlInput" placeholder="貼上 Apps Script 部署後的網址（.../exec）">
       <button id="saveApiUrl">儲存</button>
     </div>
     <div class="config-hint" id="configHint"></div>
@@ -272,7 +272,8 @@
 
   var apiUrlInput = document.getElementById('apiUrlInput');
   var configHint = document.getElementById('configHint');
-  var API_URL = localStorage.getItem('sheetApiUrl') || '';
+  var DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwf0st3p_uI34uAwTlZ23aMZPGVr6K_iewf7GjcK0OO6La_QcZjQogTd23-oSG0GxT1/exec';
+  var API_URL = localStorage.getItem('sheetApiUrl') || DEFAULT_API_URL;
   apiUrlInput.value = API_URL;
 
   function setHint(msg, cls){
@@ -283,6 +284,7 @@
   document.getElementById('saveApiUrl').addEventListener('click', function(){
     API_URL = apiUrlInput.value.trim();
     localStorage.setItem('sheetApiUrl', API_URL);
+    setHint('測試連線中…', '');
     load();
   });
 
@@ -296,7 +298,14 @@
     dailyList.innerHTML = '<div class="loading">從 Google Sheet 讀取中…</div>';
     try{
       var res = await fetch(API_URL);
-      var data = await res.json();
+      var text = await res.text();
+      var data;
+      try{
+        data = JSON.parse(text);
+      }catch(parseErr){
+        console.error('回應不是 JSON，內容開頭：', text.slice(0,200));
+        throw new Error('回應格式不是 JSON，可能是 Google 要求登入授權頁面，請確認部署設定為「誰可以存取：所有人」。');
+      }
       entries = data.map(function(r){
         var d = r.date;
         if(d && typeof d === 'string' && d.indexOf('T') > -1) d = d.slice(0,10);
@@ -312,8 +321,9 @@
       });
       setHint('已連線，共 ' + entries.length + ' 筆資料。', 'ok');
     }catch(e){
+      console.error('讀取失敗：', e);
       entries = [];
-      setHint('讀取失敗，請確認網址是否正確、Apps Script 是否已部署為「所有人可存取」。', 'err');
+      setHint('讀取失敗：' + e.message, 'err');
     }
     render();
   }
