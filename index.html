@@ -277,6 +277,7 @@
   var apiUrlInput = document.getElementById('apiUrlInput');
   var configHint = document.getElementById('configHint');
   var DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwf0st3p_uI34uAwTlZ23aMZPGVr6K_iewf7GjcK0OO6La_QcZjQogTd23-oSG0GxT1/exec';
+  var SECRET_KEY = '20261989';
   var API_URL = localStorage.getItem('sheetApiUrl') || DEFAULT_API_URL;
   apiUrlInput.value = API_URL;
 
@@ -301,7 +302,8 @@
     }
     dailyList.innerHTML = '<div class="loading">從 Google Sheet 讀取中…</div>';
     try{
-      var res = await fetch(API_URL);
+      var sep = API_URL.indexOf('?') > -1 ? '&' : '?';
+      var res = await fetch(API_URL + sep + 'key=' + encodeURIComponent(SECRET_KEY));
       var text = await res.text();
       var data;
       try{
@@ -309,6 +311,9 @@
       }catch(parseErr){
         console.error('回應不是 JSON，內容開頭：', text.slice(0,200));
         throw new Error('回應格式不是 JSON，可能是 Google 要求登入授權頁面，請確認部署設定為「誰可以存取：所有人」。');
+      }
+      if(!Array.isArray(data)){
+        throw new Error(data && data.error ? data.error : '伺服器回應格式不正確');
       }
       entries = data.map(function(r){
         var d = r.date;
@@ -337,7 +342,7 @@
       await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(Object.assign({ key: SECRET_KEY }, payload))
       });
       return true;
     }catch(e){
