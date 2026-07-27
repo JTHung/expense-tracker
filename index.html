@@ -222,6 +222,7 @@
           <option value="交通">交通</option>
           <option value="購物">購物</option>
           <option value="娛樂">娛樂</option>
+          <option value="學習">學習</option>
           <option value="居住">居住</option>
           <option value="醫療">醫療</option>
           <option value="其他">其他</option>
@@ -276,8 +277,9 @@
 
   var apiUrlInput = document.getElementById('apiUrlInput');
   var configHint = document.getElementById('configHint');
-  var DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyAxjNyZht2Puet6jXDolf9cblHYOVqwoSqAuWHH3bjbltMpqtog04YII71U78cwFuZ/exec';
-  var SECRET_KEY = '20261989';
+  var DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwf0st3p_uI34uAwTlZ23aMZPGVr6K_iewf7GjcK0OO6La_QcZjQogTd23-oSG0GxT1/exec';
+  // 要跟 apps-script-backend.gs 裡的 SECRET_KEY 一模一樣
+  var SECRET_KEY = 'CHANGE_THIS_TO_YOUR_OWN_SECRET';
   var API_URL = localStorage.getItem('sheetApiUrl') || DEFAULT_API_URL;
   apiUrlInput.value = API_URL;
 
