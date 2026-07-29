@@ -93,6 +93,11 @@
   .cat-row .bar-bg{flex:1;height:8px;background:var(--paper-line);border-radius:4px;overflow:hidden;}
   .cat-row .bar-fill{height:100%;background:var(--brass);border-radius:4px;}
   .cat-row .cat-amt{font-family:'JetBrains Mono',monospace;width:76px;text-align:right;flex:0 0 auto;}
+  .cat-row.total-row{
+    border-top:1px solid var(--ink);margin-top:10px;padding-top:10px;font-weight:700;
+  }
+  .cat-row.total-row .cat-name{color:var(--ink);}
+  .cat-row.total-row .cat-amt{color:var(--seal);font-size:14px;}
   .empty-hint{color:var(--ink-faint);font-size:13px;text-align:center;padding:8px 0;}
 
   /* add entry form */
@@ -223,7 +228,6 @@
           <option value="購物">購物</option>
           <option value="娛樂">娛樂</option>
           <option value="學習">學習</option>
-          <option value="居住">居住</option>
           <option value="醫療">醫療</option>
           <option value="其他">其他</option>
         </select>
@@ -278,6 +282,7 @@
   var apiUrlInput = document.getElementById('apiUrlInput');
   var configHint = document.getElementById('configHint');
   var DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyAxjNyZht2Puet6jXDolf9cblHYOVqwoSqAuWHH3bjbltMpqtog04YII71U78cwFuZ/exec';
+																 
   var SECRET_KEY = '20261989';
   var API_URL = localStorage.getItem('sheetApiUrl') || DEFAULT_API_URL;
   apiUrlInput.value = API_URL;
@@ -432,7 +437,12 @@
         chtml += '<span class="cat-amt">' + fmt(byCat[c]) + '</span>';
         chtml += '</div>';
       });
-      catBody.innerHTML = chtml;
+      chtml += '<div class="cat-row total-row">';
+      chtml += '<span class="cat-name">總計</span>';
+      chtml += '<span class="bar-bg"></span>';
+      chtml += '<span class="cat-amt">' + fmt(total) + '</span>';
+      chtml += '</div>';
+	  catBody.innerHTML = chtml;
     }
   }
 
