@@ -437,12 +437,35 @@
         chtml += '<span class="cat-amt">' + fmt(byCat[c]) + '</span>';
         chtml += '</div>';
       });
-      chtml += '<div class="cat-row total-row">';
-      chtml += '<span class="cat-name">總計</span>';
-      chtml += '<span class="bar-bg"></span>';
-      chtml += '<span class="cat-amt">' + fmt(total) + '</span>';
+
+      var byWho = {};
+      monthEntries.forEach(function(e){
+        var w = e.who && e.who.trim() ? e.who.trim() : '未填';
+        var m = e.method || '現金';
+        if(!byWho[w]) byWho[w] = { total: 0, methods: {} };
+        byWho[w].total += e.amount;
+        byWho[w].methods[m] = (byWho[w].methods[m]||0) + e.amount;
+      });
+      var whos = Object.keys(byWho).sort(function(a,b){ return byWho[b].total-byWho[a].total; });
+      chtml += '<div style="border-top:1px solid var(--ink);margin-top:10px;padding-top:10px;">';
+      chtml += '<div class="cat-row" style="margin-bottom:6px;"><span class="cat-name" style="color:var(--ink-faint);font-size:12px;width:auto;">記帳人結算</span></div>';
+      whos.forEach(function(w){
+        chtml += '<div class="cat-row">';
+        chtml += '<span class="cat-name">' + w + '</span>';
+        chtml += '<span class="bar-bg"></span>';
+        chtml += '<span class="cat-amt" style="color:var(--seal);font-weight:700;">' + fmt(byWho[w].total) + '</span>';
+        chtml += '</div>';
+        var methods = Object.keys(byWho[w].methods).sort(function(a,b){ return byWho[w].methods[b]-byWho[w].methods[a]; });
+        methods.forEach(function(m){
+          chtml += '<div class="cat-row" style="padding-left:14px;">';
+          chtml += '<span class="cat-name" style="width:50px;font-size:12px;color:var(--ink-faint);">└ ' + m + '</span>';
+          chtml += '<span class="bar-bg"></span>';
+          chtml += '<span class="cat-amt" style="font-size:12px;color:var(--ink-soft);">' + fmt(byWho[w].methods[m]) + '</span>';
+          chtml += '</div>';
+        });
+      });
       chtml += '</div>';
-	  catBody.innerHTML = chtml;
+      catBody.innerHTML = chtml;
     }
   }
 
